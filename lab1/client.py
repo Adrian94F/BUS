@@ -1,6 +1,8 @@
 #!/usr/bin/python2
 import socket
 import sys
+import json
+import threading
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -10,20 +12,27 @@ server_address = ('localhost', 2580)
 print('connecting to {}'.format(server_address))
 sock.connect(server_address)
 
-try:
-    # Send data
-    message = 'This is the message.  It will be repeated.'
-    print('sending "{}"'.format(message))
-    sock.sendall(message)
 
-    # Look for the response
-    amount_received = 0
-    amount_expected = len(message)
-    
-    while amount_received < amount_expected:
-        data = sock.recv(16)
-        amount_received += len(data)
-        print('received "{}"'.format(data))
-finally:
-    print('closing socket')
-    sock.close()
+
+class OutputThread(threading.Thread):
+    def run(self):
+        while True:
+            data = sock.recv(16)
+            print(data)
+
+#start output thread
+try:
+    mythread = OutputThread(name = "OutputThread") 
+    mythread.start() 
+except:
+   print "error: unable to start thread"
+
+# start input reading
+try:
+    while True:
+        message = raw_input()
+        # json magic...
+        sock.sendall(message)
+except KeyboardInterrupt:
+    mythread._Thread__stop()
+    print('good bye!')
