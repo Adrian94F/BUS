@@ -18,7 +18,7 @@
 	- szyfrowanie
 
 ### Opis działania
-'''
+```
 A (client)                                                            B (server)
           Po połączeniu do serwera klient prosi o liczby p oraz g.
 { “request”: “keys” } --> 
@@ -34,4 +34,4 @@ A (client)                                                            B (server)
   { “encryption”: “none” } -->  
           Klient oraz serwer wymieniają się szyfrowanymi wiadomościami.
   { “msg”: “...”, “from”: “John” } -->      <-- { “msg”: “...”, “from”: “Anna” }
-  '''
+  ```
