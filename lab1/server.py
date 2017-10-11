@@ -15,22 +15,28 @@ class ClientHandler(Thread):
         self.port = port 
         self.conn = conn
         self.queue = []
-        print "[+] New server socket thread started for {}:{}".format(ip, str(port))
+        print "[+] new server socket thread started for {}:{}".format(ip, str(port))
  
     def run(self): 
+        # handshake and keys...
+
         while True : 
-            data = self.conn.recv(2048) 
+            # receive data
+            data = self.conn.recv(2048)
             if data:
+                # print received data
                 print('[r] from {}:{} \'{}\''.format(self.ip, str(self.port), data))
+                # 'send' to other threads except self
                 for t in threads:
                     if t.isAlive() and t != self:
                         t.queue.append(data)
+                # send messages 'received' from other threads
                 while self.queue:
                     data = self.queue.pop(0)
                     print('[s] to   {}:{} \'{}\''.format(self.ip, str(self.port), data))
                     self.conn.send(data)
             else:
-                print('[-] No more data from {}:{}'.format(self.ip, str(self.port)))
+                print('[-] disconnecting {}:{}'.format(self.ip, str(self.port)))
                 break
 
 
@@ -43,7 +49,7 @@ port = int(sys.argv[1])
 buffer_size = 1024
 
 server_address = ('localhost', port)
-print('starting up on {}'.format(server_address))
+print('[ ] starting up on {}\n    press CTRL + C to exit'.format(server_address))
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
@@ -69,5 +75,8 @@ try:
                 t.join() 
 
 except KeyboardInterrupt:
-    print(' time to say good bye!')
+    for t in threads: 
+        if t.isAlive():
+            t._Thread__stop()
+    print('\b\b[ ] time to say good bye!')
 
