@@ -7,13 +7,10 @@
 
 ### TODO
 - serwer
-	- port w parametrze
 	- p i g: generowanie / z pliku
-	- multithread (dla każdego klienta nowe gniazdko)
 	- wymiana kluczy
 	- szyfrowanie
 - klient
-	- adres i port w parametrze
 	- wymiana kluczy
 	- szyfrowanie
 
