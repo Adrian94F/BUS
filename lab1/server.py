@@ -159,9 +159,9 @@ try:
 				t.join() 
 
 except KeyboardInterrupt:
-	logger.info('\b\b[ ] time to say goodbye!')
 	for t in threads: 
 		if t.isAlive():
 			t.sending_thread._Thread__stop()
 			t._Thread__stop()
 	logger._Thread__stop()
+	print('\b\b[ ] time to say goodbye!')
