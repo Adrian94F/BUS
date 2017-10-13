@@ -1,5 +1,6 @@
 #!/usr/bin/python2
 # -*- coding: utf-8 -*-
+# author: Adrian Frydmański
 
 import socket
 import sys
@@ -7,9 +8,14 @@ import json
 from threading import Thread
 import time
 from message import Msg
+from random import randint
 
 def rec(data):
 	print('[r] {}'.format(data))
+
+def error():
+	print('[!] error occurred... goodbye')
+	sys.exit()
 
 
 class OutputThr(Thread):
@@ -38,16 +44,38 @@ alive = 1
 
 try:
 	# Request keys
-	Msg = Msg.req_keys
-	sock.send(Msg)
+	data = Msg.req_keys
+	sock.send(data)
 
 	# Wait for keys
 	data = sock.recv(buffer_size)
 	rec(data)
 
+	try:
+		received = json.loads(data)
+		p = received['p']
+		g = received['g']
+	except KeyError:
+		error()
+
 	# Send to server A and wait for B 
+	b = randint(0, 100)
+	B = g^b % p
+	data = Msg.b % (B)
+	sock.send(data)
+
+	data = sock.recv(buffer_size)
+	try:
+		received = json.loads(data)
+		A = received['a']
+	except KeyError:
+		error()
+
+	#key
+	K=A^b % p
 
 	# Send info about encryption
+	data = Msg.encr_req % (encryption)
 
 	# Start output thread
 	try:
@@ -59,9 +87,9 @@ try:
 	# Start input reading
 	counter = 1
 	while True:
-		Msg = 'client{} \'{}\''.format(name, counter) # raw_input('')
+		data = 'I am {} ({})'.format(name, counter) # raw_input('')
 		# JSON magic...
-		sock.send(Msg)
+		sock.send(data)
 		counter += 1
 		time.sleep(2)
 	alive = 0
@@ -69,4 +97,4 @@ try:
 except KeyboardInterrupt:
 	mythread._Thread__stop()
 	sock.close()
-	print('\b\b[ ] time to say good bye!')
+	print('\b\b[ ] time to say goodbye!')

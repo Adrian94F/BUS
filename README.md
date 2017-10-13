@@ -4,20 +4,17 @@
 
 ### Wymagania
 - Python 2.7
+- Crypto (pip install crypto)
 
 ### Uruchamianie
 W osobnych oknach terminala: `./server.py port` i `./client.py ip port [szyfrowanie]` (na przykład: `./server.py 2580` i `./client.py localhost 2580`). Można uruchomić kilka instancji klienta.
 
 ### TODO
 - serwer
-	- p i g: generowanie / z pliku
-	- wymiana kluczy
 	- szyfrowanie
-  - opakowanie wiadomości w JSONa
 - klient
-	- wymiana kluczy
 	- szyfrowanie
-  - opakowanie wiadomości w JSONa
+  - naprawienie spadania z rowerka po spadnięciu serwerka
 
 ### Opis działania
 ```

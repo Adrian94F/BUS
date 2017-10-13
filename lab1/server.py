@@ -1,11 +1,52 @@
 #!/usr/bin/python2
 # -*- coding: utf-8 -*-
+# author: Adrian Frydmański
 
 import socket
 import sys
 import json
 from threading import Thread
 from message import Msg
+from Crypto.Util import number
+from random import randint
+
+
+class Logger(Thread):
+	
+	def __init__(self):
+		Thread.__init__(self)
+		self.queue = []
+
+	def info(self,data):
+		self.queue.append(data)
+
+	def run(self):
+		while True:
+			if self.queue:
+				data = self.queue.pop(0)
+				print(data)
+
+
+class ClientSendHandler(Thread):
+
+	def __init__(self,ip,port,conn): 
+		Thread.__init__(self) 
+		self.ip = ip 
+		self.port = port 
+		self.conn = conn
+		self.queue = []
+		self.encryption = 'none'
+
+	def send(self,data):
+		logger.info('[s] to   {}:{} \'{}\''.format(self.ip, str(self.port), data))
+		self.conn.send(data)
+
+	def run(self): 
+		# send Msgs 'received' from other threads
+		while True:
+			if self.queue:
+				data = self.queue.pop(0)
+				self.send(data)
 
 
 class ClientHandler(Thread):
@@ -15,15 +56,20 @@ class ClientHandler(Thread):
 		self.ip = ip 
 		self.port = port 
 		self.conn = conn
-		self.queue = []
-		print "[+] new server socket thread started for {}:{}".format(ip, str(port))
+		self.encryption = 'none'
+		self.sending_thread = ClientSendHandler(ip,port,conn)
+		self.sending_thread.start()
+		logger.info("[+] new server socket thread started for {}:{}".format(ip, str(port)))
 
 	def rec(self,data):
-		print('[r] from {}:{} \'{}\''.format(self.ip, str(self.port), data))
+		logger.info('[r] from {}:{} \'{}\''.format(self.ip, str(self.port), data))
 
 	def send(self,data):
-		print('[s] to   {}:{} \'{}\''.format(self.ip, str(self.port), data))
+		logger.info('[s] to   {}:{} \'{}\''.format(self.ip, str(self.port), data))
 		self.conn.send(data)
+
+	def error(self):
+		logger.info('[!] error occurred while parsing data from {}:{}'.format(self.ip, str(self.port)))
 
 	def run(self): 
 		# handshake and keys...
@@ -32,13 +78,30 @@ class ClientHandler(Thread):
 			self.conn.close()
 			return
 		self.rec(data)
+
 		# Hardcoded 
 		# TODO: generate
-		p = 123
-		g = 456
+		p = number.getPrime(8)
+		g = number.getPrime(8)
 		data = Msg.keys_resp % (p, g)
 		self.send(data)
 
+		# send to client B, wait for A
+		a = randint(0, 100)
+		A = g^a % p
+		data = Msg.a % (A)
+		self.send(data)
+
+		data = self.conn.recv(buffer_size)
+		try:
+			received = json.loads(data)
+			B = received['b']
+		except KeyError:
+			self.error()
+			return
+
+		#key
+		K=B^a % p
 
 		while True : 
 			# receive data
@@ -46,21 +109,27 @@ class ClientHandler(Thread):
 			if data:
 				# print received data
 				self.rec(data)
+
+				# if encryption-mode message
+					# change encryption mode
+				# else decrypt
+
 				# 'send' to other threads except self
 				for t in threads:
 					if t.isAlive() and t != self:
-						t.queue.append(data)
-				# send Msgs 'received' from other threads
-				while self.queue:
-					data = self.queue.pop(0)
-					self.send(data)
+						# encrypt data for other clients
+						t.sending_thread.queue.append(data)
 			else:
-				print('[-] disconnecting {}:{}'.format(self.ip, str(self.port)))
+				logger.info('[-] disconnecting {}:{}'.format(self.ip, str(self.port)))
+				self.sending_thread._Thread__stop()
 				break
 
 
+logger = Logger()
+logger.start()
+
 if len(sys.argv) != 2:
-	print('usage: server.py port_number')
+	logger.info('usage: server.py port_number')
 	sys.exit() 
 
 port = int(sys.argv[1])
@@ -82,7 +151,7 @@ try:
 
 		(conn, (ip,port)) = sock.accept() 
 		newthread = ClientHandler(ip,port,conn) 
-		newthread.start() 
+		newthread.start()
 		threads.append(newthread) 
 
 		for t in threads: 
@@ -90,7 +159,9 @@ try:
 				t.join() 
 
 except KeyboardInterrupt:
+	logger.info('\b\b[ ] time to say goodbye!')
 	for t in threads: 
 		if t.isAlive():
+			t.sending_thread._Thread__stop()
 			t._Thread__stop()
-	print('\b\b[ ] time to say good bye!')
+	logger._Thread__stop()
