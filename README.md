@@ -15,6 +15,8 @@ W osobnych oknach terminala: `./server.py port` i `./client.py ip port [szyfrowa
 - klient
 	- szyfrowanie
   - naprawienie spadania z rowerka po spadnięciu serwerka
+  - pisanie wiadomości w czasie otrzymywania innych
+- testy
 
 ### Opis działania
 ```

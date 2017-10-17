@@ -80,8 +80,6 @@ class ClientHandler(Thread):
             return
         self.rec(data)
 
-        # Hardcoded 
-        # TODO: generate
         p = number.getPrime(8)
         g = number.getPrime(8)
         data = Msg.keys_resp % (p, g)
@@ -116,14 +114,16 @@ class ClientHandler(Thread):
                 except ValueError:
                     self.error()
                     return
+                msg = base64.b64decode(msg)
                 # print received data
-                self.rec(data)
+                self.rec(msg)
 
                 # if encryption-mode message
                 # change encryption mode
                 # else decrypt
 
                 # 'send' to other threads except self
+                msg = base64.b64encode(msg)
                 data = Msg.msg % (msg, name)
                 for t in threads:
                     if t.isAlive() and t != self:
