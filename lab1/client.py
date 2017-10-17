@@ -10,24 +10,26 @@ import time
 from message import Msg
 from random import randint
 
+
 def rec(data):
-	print('[r] {}'.format(data))
+    print('[r] {}'.format(data))
+
 
 def error():
-	print('[!] error occurred... goodbye')
-	sys.exit()
+    print('[!] error occurred... goodbye')
+    sys.exit()
 
 
 class OutputThr(Thread):
-	def run(self):
-		while alive == 1:
-			data = sock.recv(buffer_size)
-			rec(data)
+    def run(self):
+        while alive == 1:
+            data = sock.recv(buffer_size)
+            rec(data)
 
 
 if len(sys.argv) != 3 and len(sys.argv) != 4:
-	print('usage: client.py server_address port_number')
-	sys.exit()
+    print('usage: client.py server_address port_number')
+    sys.exit()
 
 addr = sys.argv[1]
 port = int(sys.argv[2])
@@ -43,58 +45,58 @@ sock.connect(server_address)
 alive = 1
 
 try:
-	# Request keys
-	data = Msg.req_keys
-	sock.send(data)
+    # Request keys
+    data = Msg.req_keys
+    sock.send(data)
 
-	# Wait for keys
-	data = sock.recv(buffer_size)
-	rec(data)
+    # Wait for keys
+    data = sock.recv(buffer_size)
+    rec(data)
 
-	try:
-		received = json.loads(data)
-		p = received['p']
-		g = received['g']
-	except KeyError:
-		error()
+    try:
+        received = json.loads(data)
+        p = received['p']
+        g = received['g']
+    except KeyError:
+        error()
 
-	# Send to server A and wait for B 
-	b = randint(0, 100)
-	B = g^b % p
-	data = Msg.b % (B)
-	sock.send(data)
+    # Send to server A and wait for B 
+    b = randint(0, 100)
+    B = g ^ b % p
+    data = Msg.b % B
+    sock.send(data)
 
-	data = sock.recv(buffer_size)
-	try:
-		received = json.loads(data)
-		A = received['a']
-	except KeyError:
-		error()
+    data = sock.recv(buffer_size)
+    try:
+        received = json.loads(data)
+        A = received['a']
+    except KeyError:
+        error()
 
-	#key
-	K=A^b % p
+    # key
+    K = A ^ b % p
 
-	# Send info about encryption
-	data = Msg.encr_req % (encryption)
+    # Send info about encryption
+    data = Msg.encr_req % encryption
 
-	# Start output thread
-	try:
-		mythread = OutputThr(name = "OutputThread") 
-		mythread.start() 
-	except:
-		print('[!] error: unable to start thread')
+    # Start output thread
+    try:
+        mythread = OutputThr(name="OutputThread")
+        mythread.start() 
+    except:
+        print('[!] error: unable to start thread')
 
-	# Start input reading
-	counter = 1
-	while True:
-		data = 'I am {} ({})'.format(name, counter) # raw_input('')
-		# JSON magic...
-		sock.send(data)
-		counter += 1
-		time.sleep(2)
-	alive = 0
+    # Start input reading
+    counter = 1
+    while True:
+        data = 'I am {} ({})'.format(name, counter) # raw_input('')
+        # JSON magic...
+        sock.send(data)
+        counter += 1
+        time.sleep(2)
+    alive = 0
 
 except KeyboardInterrupt:
-	mythread._Thread__stop()
-	sock.close()
-	print('\b\b[ ] time to say goodbye!')
+    mythread._Thread__stop()
+    sock.close()
+    print('\b\b[ ] time to say goodbye!')
