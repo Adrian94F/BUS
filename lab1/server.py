@@ -9,6 +9,7 @@ from threading import Thread
 from message import Msg
 from Crypto.Util import number
 from random import randint
+import base64
 
 
 class Logger(Thread):
@@ -93,10 +94,11 @@ class ClientHandler(Thread):
         self.send(data)
 
         data = self.conn.recv(buffer_size)
+        self.rec(data)
         try:
             received = json.loads(data)
             B = received['b']
-        except KeyError:
+        except ValueError:
             self.error()
             return
 
@@ -107,6 +109,13 @@ class ClientHandler(Thread):
             # receive data
             data = self.conn.recv(2048)
             if data:
+                try:
+                    received = json.loads(data)
+                    msg = received['msg']
+                    name = received['from']
+                except ValueError:
+                    self.error()
+                    return
                 # print received data
                 self.rec(data)
 
@@ -115,6 +124,7 @@ class ClientHandler(Thread):
                 # else decrypt
 
                 # 'send' to other threads except self
+                data = Msg.msg % (msg, name)
                 for t in threads:
                     if t.isAlive() and t != self:
                         # encrypt data for other clients
