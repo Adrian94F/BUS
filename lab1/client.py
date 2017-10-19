@@ -86,7 +86,7 @@ try:
 
     # Send to server A and wait for B 
     b = randint(0, 100)
-    B = g ^ b % p
+    B = g ** b % p
     data = Msg.b % B
     sock.send(data)
 
@@ -98,7 +98,7 @@ try:
         error()
 
     # key
-    K = A ^ b % p
+    K = A ** b % p
 
     # Send info about encryption
     data = Msg.encr_req % encryption

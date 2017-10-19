@@ -87,7 +87,7 @@ class ClientHandler(Thread):
 
         # send to client B, wait for A
         a = randint(0, 100)
-        A = g ^ a % p
+        A = g ** a % p
         data = Msg.a % A
         self.send(data)
 
@@ -101,7 +101,7 @@ class ClientHandler(Thread):
             return
 
         # key
-        K = B ^ a % p
+        K = B ** a % p
 
         while True:
             # receive data
