@@ -8,9 +8,10 @@ import json
 import threading
 from threading import Thread
 import time
-from message import Msg
+from message import *
 from random import randint
 import base64
+import codecs
 
 
 def rec(data):
@@ -39,6 +40,9 @@ class OutputThr(Thread):
                 error()
                 return
             msg = base64.b64decode(msg)
+            if encryption == 'rot13':
+                msg = codecs.decode(msg, 'rot_13')
+            name = base64.b64decode(name)
             msg_out(msg, name)
 
 
@@ -102,6 +106,7 @@ try:
 
     # Send info about encryption
     data = Msg.encr_req % encryption
+    sock.send(data)
 
     # Start output thread
     print('[ ] starting...')
@@ -119,7 +124,10 @@ try:
         else:
             # with lock:
             message = raw_input('')  # sys.stdin.readline()
+        if encryption == 'rot13':
+            message = codecs.encode(message, 'rot_13')
         message = base64.b64encode(message)
+        name = base64.b64encode(name)
         data = Msg.msg % (message, name)
         sock.send(data)
         counter += 1

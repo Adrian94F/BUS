@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # author: Adrian Frydmański
 
+
 class Msg:
     req_keys = '{ "request": "keys" }'
     keys_resp = '{ "p": %d, "g": %d }'

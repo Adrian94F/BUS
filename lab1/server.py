@@ -6,10 +6,11 @@ import socket
 import sys
 import json
 from threading import Thread
-from message import Msg
+from message import *
 from Crypto.Util import number
 from random import randint
 import base64
+import codecs
 
 
 class Logger(Thread):
@@ -109,25 +110,35 @@ class ClientHandler(Thread):
             if data:
                 try:
                     received = json.loads(data)
-                    msg = received['msg']
-                    name = received['from']
-                except ValueError:
+                    if 'msg' in received and 'from' in received:
+                        msg = received['msg']
+                        name = received['from']
+                    if 'encryption' in received:
+                        self.encryption = received['encryption']
+                        continue
+                except KeyError:
                     self.error()
                     return
                 msg = base64.b64decode(msg)
                 # print received data
                 self.rec(msg)
 
-                # if encryption-mode message
-                # change encryption mode
-                # else decrypt
+                # decrypt
+                if self.encryption == 'rot13':
+                    msg = codecs.decode(msg, 'rot13')
+                elif self.encryption == 'xor':
+                    pass
 
                 # 'send' to other threads except self
-                msg = base64.b64encode(msg)
-                data = Msg.msg % (msg, name)
                 for t in threads:
                     if t.isAlive() and t != self:
                         # encrypt data for other clients
+                        if t.encryption == 'rot13':
+                            msg = codecs.encode(msg, 'rot13')
+                        if t.encryption == 'xor':
+                            pass
+                        msg = base64.b64encode(msg)
+                        data = Msg.msg % (msg, name)
                         t.sending_thread.queue.append(data)
             else:
                 logger.info('[-] disconnecting {}:{}'.format(self.ip, str(self.port)))

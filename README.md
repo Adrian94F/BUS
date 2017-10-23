@@ -11,9 +11,9 @@ W osobnych oknach terminala: `./server.py port` i `./client.py ip port [szyfrowa
 
 ### TODO
 - serwer
-	- szyfrowanie
+	- szyfrowanie xor
 - klient
-	- szyfrowanie
+	- szyfrowanie xor
   - naprawienie spadania z rowerka po spadnięciu serwerka
   - pisanie wiadomości w czasie otrzymywania innych
 - testy
