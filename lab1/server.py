@@ -19,7 +19,7 @@ class Logger(Thread):
         Thread.__init__(self)
         self.queue = []
 
-    def info(self,data):
+    def info(self, data):
         self.queue.append(data)
 
     def run(self):
@@ -59,8 +59,9 @@ class ClientHandler(Thread):
         self.port = port 
         self.conn = conn
         self.encryption = 'none'
-        self.sending_thread = ClientSendHandler(ip,port,conn)
+        self.sending_thread = ClientSendHandler(ip, port, conn)
         self.sending_thread.start()
+        self.K = 0
         logger.info("[+] new server socket thread started for {}:{}".format(ip, str(port)))
 
     def rec(self, data):
@@ -69,6 +70,9 @@ class ClientHandler(Thread):
     def send(self, data):
         logger.info('[s] to   {}:{} \'{}\''.format(self.ip, str(self.port), data))
         self.conn.send(data)
+
+    def chng_enc(self):
+        logger.info('[i] {}:{} changed encryption to {}'. format(self.ip, str(self.port), self.encryption))
 
     def error(self):
         logger.info('[!] error occurred while parsing data from {}:{}'.format(self.ip, str(self.port)))
@@ -102,44 +106,47 @@ class ClientHandler(Thread):
             return
 
         # key
-        K = B ** a % p
+        self.K = B ** a % p
 
         while True:
             # receive data
-            data = self.conn.recv(2048)
+            data = self.conn.recv(buffer_size)
             if data:
                 try:
                     received = json.loads(data)
+                    msg = ''
+                    name = ''
                     if 'msg' in received and 'from' in received:
                         msg = received['msg']
                         name = received['from']
+                        msg = base64.b64decode(msg)
+                        self.rec(msg)
                     if 'encryption' in received:
                         self.encryption = received['encryption']
+                        self.rec('{}'.format(received))
+                        self.chng_enc()
                         continue
                 except KeyError:
                     self.error()
                     return
-                msg = base64.b64decode(msg)
-                # print received data
-                self.rec(msg)
 
                 # decrypt
                 if self.encryption == 'rot13':
-                    msg = codecs.decode(msg, 'rot13')
+                    msg = codecs.decode(msg, 'rot_13')
                 elif self.encryption == 'xor':
-                    pass
+                    msg = Msg.xor(msg, self.K)
 
                 # 'send' to other threads except self
-                for t in threads:
-                    if t.isAlive() and t != self:
+                for thr in threads:
+                    if thr.isAlive() and thr != self:
                         # encrypt data for other clients
-                        if t.encryption == 'rot13':
-                            msg = codecs.encode(msg, 'rot13')
-                        if t.encryption == 'xor':
-                            pass
+                        if thr.encryption == 'rot13':
+                            msg = codecs.encode(msg, 'rot_13')
+                        elif thr.encryption == 'xor':
+                            msg = Msg.xor(msg, thr.K)
                         msg = base64.b64encode(msg)
                         data = Msg.msg % (msg, name)
-                        t.sending_thread.queue.append(data)
+                        thr.sending_thread.queue.append(data)
             else:
                 logger.info('[-] disconnecting {}:{}'.format(self.ip, str(self.port)))
                 self.sending_thread._Thread__stop()
@@ -168,7 +175,7 @@ threads = []
 
 try:
     while True:
-        sock.listen(1)
+        sock.listen(4)
 
         (conn, (ip, port)) = sock.accept()
         newthread = ClientHandler(ip, port, conn)

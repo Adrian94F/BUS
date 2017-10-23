@@ -12,6 +12,7 @@ from message import *
 from random import randint
 import base64
 import codecs
+from time import sleep
 
 
 def rec(data):
@@ -35,15 +36,17 @@ class OutputThr(Thread):
             try:
                 data = json.loads(data)
                 msg = data['msg']
-                name = data['from']
+                sender = data['from']
             except ValueError:
                 error()
                 return
             msg = base64.b64decode(msg)
             if encryption == 'rot13':
                 msg = codecs.decode(msg, 'rot_13')
-            name = base64.b64decode(name)
-            msg_out(msg, name)
+            elif encryption == 'xor':
+                msg = Msg.xor(msg, K)
+            sender = base64.b64decode(sender)
+            msg_out(msg, sender)
 
 
 if len(sys.argv) != 3 and len(sys.argv) != 4:
@@ -64,6 +67,7 @@ if len(sys.argv) == 4:
 buffer_size = 1024
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 name = raw_input('[ ] starting client\n    press CTRL + C to exit\n    type your name: ')
+name = base64.b64encode(name)
 server_address = (addr, 2580)
 print('[+] trying to connect to {} with encryption set to \'{}\''.format(server_address, encryption))
 sock.connect(server_address)
@@ -106,6 +110,7 @@ try:
 
     # Send info about encryption
     data = Msg.encr_req % encryption
+    sleep(0.1)
     sock.send(data)
 
     # Start output thread
@@ -120,15 +125,16 @@ try:
     counter = 1
     while True:
         if bot:
-            message = 'message nr {}'.format(counter)  # raw_input('')
+            msg = 'message nr {}'.format(counter)
         else:
             # with lock:
-            message = raw_input('')  # sys.stdin.readline()
+            msg = raw_input('')
         if encryption == 'rot13':
-            message = codecs.encode(message, 'rot_13')
-        message = base64.b64encode(message)
-        name = base64.b64encode(name)
-        data = Msg.msg % (message, name)
+            msg = codecs.encode(msg, 'rot_13')
+        elif encryption == 'xor':
+            msg = Msg.xor(msg, K)
+        msg = base64.b64encode(msg)
+        data = Msg.msg % (msg, name)
         sock.send(data)
         counter += 1
         time.sleep(2)
