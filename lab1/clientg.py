@@ -178,6 +178,7 @@ class Ui_MainWindow(object):
         self.lineEdit_nick.setText('name')
 
     def connect_with_server(self):
+        self.pushButton_connect.setDisabled(True)
         self.addr = self.lineEdit_ip.text()
         self.port = int(self.lineEdit_port.text())
         self.encryption = self.lineEdit_encryption.text()
@@ -188,7 +189,11 @@ class Ui_MainWindow(object):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_address = (self.addr, self.port)
         print('[+] trying to connect to {} with encryption set to \'{}\''.format(server_address, self.encryption))
-        self.sock.connect(server_address)
+        try:
+            self.sock.connect(server_address)
+        except:
+            self.pushButton_connect.setEnabled(True)
+            return
 
         alive = 1
 
