@@ -10,7 +10,6 @@ from message import *
 from Crypto.Util import number
 from random import randint
 import base64
-import codecs
 
 
 class Logger(Thread):
@@ -131,20 +130,14 @@ class ClientHandler(Thread):
                     return
 
                 # decrypt
-                if self.encryption == 'rot13':
-                    msg = codecs.decode(msg, 'rot_13')
-                elif self.encryption == 'xor':
-                    msg = Msg.xor(msg, self.K)
+                msg = decrypt(msg, self.encryption, self.K)
 
                 # 'send' to other threads except self
                 for thr in threads:
                     if thr.isAlive() and thr != self:
                         thr_msg = msg
                         # encrypt data for other clients
-                        if thr.encryption == 'rot13':
-                            thr_msg = codecs.encode(thr_msg, 'rot_13')
-                        elif thr.encryption == 'xor':
-                            thr_msg = Msg.xor(thr_msg, thr.K)
+                        thr_msg = encrypt(thr_msg, thr.encryption, thr.K)
                         thr_msg = base64.b64encode(thr_msg)
                         data = Msg.msg % (thr_msg, name)
                         thr.sending_thread.queue.append(data)

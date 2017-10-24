@@ -10,9 +10,8 @@
 W osobnych oknach terminala: `./server.py port` i `./client.py ip port [szyfrowanie]` (na przykład: `./server.py 2580` i `./client.py localhost 2580`). Można uruchomić kilka instancji klienta.
 
 ### TODO
-- serwer
-    - szyfrowanie/deszyfrowanie przy 3+ klientach
 - klient
+    - GUI
     - pisanie wiadomości w czasie otrzymywania innych
 - testy
 
