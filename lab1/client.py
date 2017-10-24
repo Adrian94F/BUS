@@ -72,8 +72,6 @@ sock.connect(server_address)
 
 alive = 1
 
-lock = threading.Lock()
-
 try:
     # Request keys
     data = Msg.req_keys
