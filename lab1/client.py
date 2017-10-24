@@ -53,7 +53,7 @@ if len(sys.argv) != 3 and len(sys.argv) != 4:
 addr = sys.argv[1]
 port = int(sys.argv[2])
 
-encryption = 'none'
+encryption = NONE
 bot = 0
 if len(sys.argv) == 4:
     if sys.argv[3] == XOR or sys.argv[3] == CAESAR:

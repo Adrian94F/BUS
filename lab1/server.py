@@ -36,7 +36,7 @@ class ClientSendHandler(Thread):
         self.port = port 
         self.conn = conn
         self.queue = []
-        self.encryption = 'none'
+        self.encryption = NONE
 
     def send(self,data):
         logger.info('[s] to   {}:{} \'{}\''.format(self.ip, str(self.port), data))
@@ -57,7 +57,7 @@ class ClientHandler(Thread):
         self.ip = ip 
         self.port = port 
         self.conn = conn
-        self.encryption = 'none'
+        self.encryption = NONE
         self.sending_thread = ClientSendHandler(ip, port, conn)
         self.sending_thread.start()
         self.K = 0

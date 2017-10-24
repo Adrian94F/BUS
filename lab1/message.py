@@ -13,6 +13,7 @@ class Msg:
 
 CAESAR = 'cezar'
 XOR = 'xor'
+NONE = 'none'
 
 
 def xor(string, key):
