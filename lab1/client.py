@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # author: Adrian Frydmański
 
+from __future__ import print_function
+
 import socket
 import sys
 import json
@@ -114,10 +116,10 @@ try:
     sock.send(data)
 
     # Start output thread
-    print('[ ] starting...')
     try:
         mythread = OutputThr(name="OutputThread")
         mythread.start()
+        print('[ ] starting... done!')
     except:
         print('[!] error: unable to start thread')
 
@@ -126,6 +128,8 @@ try:
     while True:
         if bot:
             msg = 'message nr {}'.format(counter)
+            counter += 1
+            time.sleep(2)
         else:
             # with lock:
             msg = raw_input('')
@@ -136,8 +140,6 @@ try:
         msg = base64.b64encode(msg)
         data = Msg.msg % (msg, name)
         sock.send(data)
-        counter += 1
-        time.sleep(2)
     alive = 0
 
 except KeyboardInterrupt:

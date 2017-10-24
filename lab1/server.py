@@ -139,13 +139,14 @@ class ClientHandler(Thread):
                 # 'send' to other threads except self
                 for thr in threads:
                     if thr.isAlive() and thr != self:
+                        thr_msg = msg
                         # encrypt data for other clients
                         if thr.encryption == 'rot13':
-                            msg = codecs.encode(msg, 'rot_13')
+                            thr_msg = codecs.encode(thr_msg, 'rot_13')
                         elif thr.encryption == 'xor':
-                            msg = Msg.xor(msg, thr.K)
-                        msg = base64.b64encode(msg)
-                        data = Msg.msg % (msg, name)
+                            thr_msg = Msg.xor(thr_msg, thr.K)
+                        thr_msg = base64.b64encode(thr_msg)
+                        data = Msg.msg % (thr_msg, name)
                         thr.sending_thread.queue.append(data)
             else:
                 logger.info('[-] disconnecting {}:{}'.format(self.ip, str(self.port)))
