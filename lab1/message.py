@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # author: Adrian Frydmański
 
-import codecs
-
 
 class Msg:
     req_keys = '{ "request": "keys" }'
@@ -12,25 +10,42 @@ class Msg:
     encr_req = '{ "encryption": "%s" }'
     msg = '{ "msg": "%s", "from": "%s" }'
 
-    @staticmethod
-    def xor(string, key):
-        new = ''
-        for x in range(0, len(string)):
-            new += chr(key ^ ord(string[x]))
-        return string
+
+CAESAR = 'cezar'
+XOR = 'xor'
+
+
+def xor(string, key):
+    new = ''
+    for x in range(0, len(string)):
+        new += chr(key ^ ord(string[x]))
+    return new
+
+
+def caesar(string, key):
+    string_out = ''
+    for each in string:
+        c = (ord(each)+key) % 126
+        if c < 32:
+            if key > 0:
+                c += 31
+            else:
+                c += 95
+        string_out += chr(c)
+    return string_out
 
 
 def encrypt(msg, method, key):
-    if method == 'rot13':
-        msg = codecs.encode(msg, 'rot_13')
-    elif method == 'xor':
-        msg = Msg.xor(msg, key)
+    if method == CAESAR:
+        msg = caesar(msg, key)
+    elif method == XOR:
+        msg = xor(msg, key)
     return msg
 
 
 def decrypt(msg, method, key):
-    if method == 'rot13':
-        msg = codecs.decode(msg, 'rot_13')
-    elif method == 'xor':
-        msg = Msg.xor(msg, key)
+    if method == CAESAR:
+        msg = caesar(msg, -key)
+    elif method == XOR:
+        msg = xor(msg, key)
     return msg

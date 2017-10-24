@@ -56,7 +56,7 @@ port = int(sys.argv[2])
 encryption = 'none'
 bot = 0
 if len(sys.argv) == 4:
-    if sys.argv[3] == 'xor' or sys.argv[3] == 'rot13':
+    if sys.argv[3] == XOR or sys.argv[3] == CAESAR:
         encryption = sys.argv[3]
     elif sys.argv[3] == 'bot':
         bot = 1
