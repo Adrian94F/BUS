@@ -5,6 +5,7 @@
 ### Wymagania
 - Python 2.7
 - Crypto (pip install crypto)
+- PyQT4 (pip install pyqt4)
 
 ### Uruchamianie
 W osobnych oknach terminala: `./server.py port` i `./client.py ip port [szyfrowanie]` (na przykład: `./server.py 2580` i `./client.py localhost 2580`). Można uruchomić kilka instancji klienta.
@@ -12,6 +13,9 @@ W osobnych oknach terminala: `./server.py port` i `./client.py ip port [szyfrowa
 ### TODO
 - klient
     - GUI
+        - odbieranie i wyświetlanie wiadomości
+        - wysyłanie wiadomości
+        - zmiana szyfrowania
     - pisanie wiadomości w czasie otrzymywania innych
 - testy
 
