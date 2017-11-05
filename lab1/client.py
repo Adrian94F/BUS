@@ -66,7 +66,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 name = raw_input('[ ] starting client\n    press CTRL + C to exit\n    type your name: ')
 # name = base64.b64encode(name)
 name = re.sub('[^A-Za-z0-9]+', '', name)
-server_address = (addr, 2580)
+server_address = (addr, port)
 print('[+] trying to connect to {} with encryption set to \'{}\''.format(server_address, encryption))
 sock.connect(server_address)
 
