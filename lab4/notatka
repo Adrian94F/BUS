@@ -1,0 +1,31 @@
+e8 11 ff ff ff       	call   80484e2 <cheater>     
+8048566 winner
+
+
+call cheater  pod 80485cc
+
+
+cheater       		pod 80484e2
+
+winner        		pod 8048566
+
+looser 		  		pod 8048552 
+
+init		  		pod 804857a
+
+wywołanie init 		pod 80485be
+
+zamiana 63 na 78
+
+01100011
+01111000
+
+4 bity
+
+
+też można
+
+52 na 66
+
+0101 0010
+0110 0110

@@ -1,0 +1,112 @@
+\documentclass[a4paper]{article}
+
+\usepackage[polish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{polski}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[parfill]{parskip}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage[normalem]{ulem}
+\usepackage{listings}
+
+\title{Bezpieczeństwo usług sieciowych \\ --- laboratorium 2 --- \\ Rozwal.to}
+
+\author{Adrian Frydmański}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Zerówka}
+\subsection{Jak tego nie rozwalisz -- usuń konto}
+Flaga ukryta w kodzie strony (w komentarzu).
+
+Flaga: \texttt{DontMessWithZohan}
+
+\subsection{Typowa flaga za 1p.}
+Zarówno hasło do wpisania w pole jak i flaga widoczna w kodzie strony (w polu \texttt{script}).
+
+Flaga: \texttt{ILikeBiscuits}
+
+
+\section{Crypto}
+\subsection{Bob uwielbia xorować}
+Wiadomość zaszyfrowana przez xor na każdym bajcie tym samym kluczem, dodatkowo zakodowana w base64.
+
+Program \texttt{Bob\_uwielbia\_xorowac.py} odkodowuje, a nastepnie sprawdza po kolei znaki zaszyfrowanej wiadomości. Zakładając, że testowany znak to zaszyfrowane ,,R'' oblicza klucz i sprawdza, czy kolejne znaki po odszyfrowaniu tym kluczem to ,,OZWAL\_\{''. Po znalezieniu pasującego ciągu uznaje, że klucz jest właściwy i odszyfrowuje całą wiadomość.
+
+Flaga: \texttt{SingleXorByteCipher}
+
+
+\subsection{Alicja też xoruje}
+Wiadomość zaszyfrowana przez xor na każdym bajcie innym kluczem, dodatkowo zakodowana w base64. 
+
+Program \texttt{Alicja\_tez\_xoruje.py} odkodowuje,
+a następnie szuka możliwych fragmentów kluczy. Po kolei szuka fragmentu hasła, xorując 6-znakowe ,,ROZWAL'' na każdym fragmencie zdekodowanego tekstu. Odważnie założyłem, że hasło będzie miało tyle, bądź mniej znaków i będzie hasłem słownikowym, czyli będzie zawierać znaki alfanumeryczne. ,,Przyjaźnie'' wyglądającym okazał się fragment ,,kkotek'', na podstawie którego wywnioskowałem, że hasło to ,,kotek''. Nim odszyfrowałem cały tekst. 
+
+Flaga: \texttt{AliceIsImpressed}
+
+\subsection{Cweyk funcbjqlsiluqe}
+Tekst jest w języku angielskim. Próbuję znaleźć pojedyncze wielkie litery, które mogą być ,,I'', pary liter po nich, które mogą być ,,am''. Zamienione są tylko litery. Na podstawie tego, co otrzymuję próbuję szukać kolejnych słów, które mogą pasować i uzupełniam słownik z każdym uruchomieniem programu.
+
+Flaga: \texttt{SubStitutionCipherIsWeak}
+
+\subsection{Nie kłam}
+Odczytałem ciacho po wpisaniu ,,xxxxxxxxxxlogin=admin'' w formularzu \\ ,,VxudCsIeS5e0MLhUIVh3C\%2Bl3\%2FvQKcTTGP49fRXSFRcA\%3D''.
+
+Zdekodowałem je jako url, zdekodowałem jako base64, uciąłem pierwszy blok zawierający zaszyfrowaną frazę ,,login=xxxxxxxxxx'' dzięki czemu pozostał mi tylko blok z zaszyfrowanym ,,login=admin'' i zakodowałem z powrotem na base64 i na url za pomocą php sandboxa.
+
+Podmieniłem ciacho na to, które otrzymałem. Ustawiłem na tylko do odczytu, dzięki czemu nie mogło ulec zmianie. Odświezyłem stronę i \sout{na horyzoncie} zobaczyłem flagę:
+
+Flaga: \texttt{SoYouDidCopyAndPaste}
+
+\subsection{Mieszkam w bloku}
+Jako, że kolejne bloki są szyfrowane takim samym kluczem (AES w trybie ECB), mogę dopasowywać blok wygenerowany przeze mnie z otrzymanym.
+
+\texttt{query=AAAAAAAAAA AAAA\&f=ROZWAL\_\{X AAAAAAAAAAAAAAAA AAAA\&f=ROZWAL\_\{?\\
+query=AAAAAAAAAA AAA\&f=ROZWAL\_\{XX AAAAAAAAAAAAAAAA AAA\&f=ROZWAL\_\{??\\
+query=AAAAAAAAAA AA\&f=ROZWAL\_\{XXX AAAAAAAAAAAAAAAA AA\&f=ROZWAL\_\{???\\
+query=AAAAAAAAAA A\&f=ROZWAL\_\{XXXX AAAAAAAAAAAAAAAA A\&f=ROZWAL\_\{????\\
+query=AAAAAAAAAA \&f=ROZWAL\_\{XXXXX AAAAAAAAAAAAAAAA \&f=ROZWAL\_\{?????\\
+...}
+
+X to podstawiane przeze mnie znaki, ? to fragmenty flagi. Całość jest oczywiście zaszyfrowana, ale porównywanie zaszyfrowanych bloków daje ten sam oczekiwany efekt. Jeśli drugi i czwarty blok ciacha się zgadzają, sprawdzana przeze mnie litera jest właściwa.
+
+Flaga: \texttt{ECBisNotSoGreat}
+
+
+\section{Podsumowanie}
+Zdobyte punkty:
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{|l|r|}
+		\hline 
+		\textbf{Zadanie} & \textbf{Liczba punktów} \\ 
+		\hline 
+		\hline
+		Jak tego nie rozwalisz - usuń konto & 1 \\ 
+		\hline
+		Typowa flaga za 1p. & 1 \\ 
+		\hline
+		\hline
+		Bob uwielbia xorować & 20 \\ 
+		\hline 
+		Alicja też xoruje & 125 \\ 
+		\hline 
+		Cweyk funcbjqlsiluqe & 20 \\ 
+		\hline   
+		Nie kłam & 100 \\ 
+		\hline 
+		Mieszkam w bloku & 100 \\ 
+		\hline 
+		\hline
+		\textbf{Suma} & \textbf{367} \\ 
+		\hline 
+	\end{tabular} 
+\end{figure}
+
+
+\end{document}

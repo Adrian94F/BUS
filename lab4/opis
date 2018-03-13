@@ -1,0 +1,26 @@
+80485be call do inita
+80485c3 call guarda
+sprawdzamy, czy 0
+jesli tak, to 3 linijki dalej w main\
+jeśli nie, to na koniec maina - leave i ret - return cheater() - wyświetla coś i zwraca -1
+
+cheater():
+	puts()
+	return -1
+
+time_guard():
+	t = time(0)
+	d = stała (początkowo 19 grudnia 20:00)
+	if (t-d) < 2:
+		stała = time(0)
+		return 0
+
+x = scanf()
+
+0x804a060(,%eax,4),%eax mnożymy eax przez 4, dodajemy do 0x804a060, z tego miejsca do eax
+eax = tab[eax]
+potem jest call, czyli to wskaźnik na funkcję
+
+w init jest pętla wykonująca się 0x29
+
+
